@@ -1,1 +1,33 @@
-
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: example-nginx-app
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/danilofreytas/Application-tester-argocd.git  # Repositório onde o values.yaml está localizado
+    path: "helm-values-files"  # Caminho no repositório onde o arquivo values.yaml está localizado
+    targetRevision: HEAD  # Versão ou branch do repositório Git
+    plugin:
+      name: helm-yotpo  # Nome do plugin personalizado configurado no argocd-cm
+      env:
+        - name: HELM_RELEASE_NAME
+          value: "nginx-release"  # Nome da release do Helm
+        - name: HELM_CHART_VERSION
+          value: "13.2.8"  # Versão do chart Helm do nginx
+        - name: NAMESPACE
+          value: "homolog"  # Namespace onde os recursos serão implantados
+        - name: HELM_REPO_URL
+          value: "https://charts.bitnami.com/bitnami"  # Repositório Helm onde o chart está hospedado
+        - name: HELM_CHART_NAME
+          value: "nginx"  # Nome do chart Helm
+        - name: HELM_VALUES_FILE
+          value: "nginx-values.yaml"  # Nome do arquivo values.yaml no repositório Git
+  destination:
+    server: https://34.75.87.39  # Servidor Kubernetes onde os recursos serão implantados
+    namespace: homolog  # Namespace onde os recursos serão implantados
+  syncPolicy:
+    automated:  # Política de sincronização automática
+      prune: true
+      selfHeal: true
